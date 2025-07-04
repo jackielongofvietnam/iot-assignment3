@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Crop Monitoring Dashboard</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body class="p-4">
+
+  <h1 class="mb-4">🌾 Crop Monitoring Dashboard</h1>
+
+  <!-- 🔘 FAN CONTROL -->
+  <div class="mb-5 border p-3">
+    <h4>Fan System</h4>
+    <button class="btn btn-success me-2" onclick="controlFan('on')">Turn ON</button>
+    <button class="btn btn-danger" onclick="controlFan('off')">Turn OFF</button>
+    <div id="fan-status" class="mt-2 text-muted"></div>
+  </div>
+
+  <!-- 🔍 SEARCH -->
+  <div class="border p-3">
+    <h4>Search Data</h4>
+    <form onsubmit="return fetchData(event)">
+      <div class="row g-3 align-items-end">
+        <div class="col-md-3">
+          <label class="form-label">Parameter</label>
+          <select class="form-select" id="parameter">
+            <option value="soil_moisture">Soil Moisture</option>
+            <option value="temperature">Temperature</option>
+            <option value="sunlight">Sunlight</option>
+            <option value="rain">Rain</option>
+            <option value="water_level">Water Level</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Start Time</label>
+          <input type="datetime-local" id="start" class="form-control" required>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">End Time</label>
+          <input type="datetime-local" id="end" class="form-control" required>
+        </div>
+        <div class="col-md-3">
+          <button type="submit" class="btn btn-primary">Search</button>
+        </div>
+      </div>
+    </form>
+    <table class="table table-striped mt-4">
+      <thead><tr><th>Value</th><th>Timestamp</th></tr></thead>
+      <tbody id="result-table"></tbody>
+    </table>
+  </div>
+
+  <!-- Scripts -->
+  <script>
+    function controlFan(action) {
+      fetch('/api/fan', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({action})
+      })
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById('fan-status').innerText = `Fan command sent: ${data.action.toUpperCase()}`;
+      });
+    }
+
+    function fetchData(e) {
+      e.preventDefault();
+      const param = document.getElementById('parameter').value;
+      const start = document.getElementById('start').value;
+      const end = document.getElementById('end').value;
+
+      fetch(`/api/search?parameter=${param}&start=${start}&end=${end}`)
+        .then(res => res.json())
+        .then(data => {
+          let rows = data.map(row => `<tr><td>${row.value}</td><td>${row.timestamp}</td></tr>`).join('');
+          document.getElementById('result-table').innerHTML = rows;
+        });
+    }
+  </script>
+
+</body>
+</html>
