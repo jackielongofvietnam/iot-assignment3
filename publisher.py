@@ -24,7 +24,7 @@ database = pymysql.connect(
     host="localhost",
     user="pi",
     password="",
-    database="assignment1"
+    database="assignment3"
 )
 cursor = database.cursor()
 cursor = database.cursor()
