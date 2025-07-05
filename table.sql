@@ -32,3 +32,12 @@ CREATE TABLE water_level (
     value VARCHAR(20),
     timestamp DATETIME
 );
+
+sudo mysql
+USE assignment3;
+DELETE FROM soil_moisture;
+DELETE FROM temperature;
+DELETE FROM sunlight;
+DELETE FROM rain;
+DELETE FROM water_level;
+exit

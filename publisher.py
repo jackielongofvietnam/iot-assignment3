@@ -5,28 +5,29 @@ import paho.mqtt.client as mqtt
 import pymysql
 from datetime import datetime
 
-# === CONFIGURATION ===
+# Configuration
 SERIAL_PORT = '/dev/ttyS0'
 BAUD_RATE = 9600
 THINGSBOARD_ADDR = "192.168.112.131"
 PORT = 1883
 ACCESS_TOKEN = "zgrbpj5lm4bprcclwm2f"
 
-# === INIT SERIAL, MQTT, database ===
+# Initialize serial connection
 ser = serial.Serial(SERIAL_PORT, BAUD_RATE, timeout=2)
 
+# Initialize MQTT client
 client = mqtt.Client()
 client.username_pw_set(ACCESS_TOKEN)
 client.connect(THINGSBOARD_ADDR, PORT, 60)
 client.loop_start()
 
+# Initialize database connection
 database = pymysql.connect(
     host="localhost",
     user="pi",
     password="",
     database="assignment3"
 )
-cursor = database.cursor()
 cursor = database.cursor()
 
 def insert_into_database(table, value):
@@ -60,7 +61,7 @@ def analyze_and_publish(data):
             rain_status = "No rain"
         insert_into_database('rain', rain_status)
 
-        # Water Level Condition
+        # Water Level
         if water_raw < 200:
             water_status = "Flooded"
         elif water_raw < 500:
@@ -69,7 +70,7 @@ def analyze_and_publish(data):
             water_status = "OK"
         insert_into_database('water_level', water_status)
 
-        # Publish to MQTT
+        # Publish
         payload = {
             "soil_moisture": soil_percent,
             "temperature": temp_c,
@@ -83,7 +84,7 @@ def analyze_and_publish(data):
     except Exception as e:
         print(f"Error processing data: {e}")
 
-# === LOOP ===
+# Loop
 try:
     print("Edge device is running...")
     while True:
@@ -95,7 +96,7 @@ try:
         time.sleep(1)
 
 except KeyboardInterrupt:
-    print("Shutting down gracefully...")
+    print("Shutting down ...")
 finally:
     ser.close()
     client.loop_stop()

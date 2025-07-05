@@ -1,0 +1,1 @@
+mosquitto_pub -d -q 1 -h 192.168.112.131 -p 1883 -t v1/devices/me/telemetry -u "zgrbpj5lm4bprcclwm2f" -m "{soil_moisture:23,temperature:25,sunlight:"Sunny",rain:"Heavy",water_level:"OK"}"
