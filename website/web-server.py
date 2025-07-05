@@ -1,23 +1,23 @@
 from flask import Flask, render_template, request, jsonify
-import mysql.connector
+import pymysql
 import paho.mqtt.publish as publish
 from datetime import datetime
 
 app = Flask(__name__)
 
-# MQTT Setup
-MQTT_BROKER = "thingsboard.cloud"
-ACCESS_TOKEN = "YOUR_THINGSBOARD_ACCESS_TOKEN"
+# # MQTT Setup
+# MQTT_BROKER = "thingsboard.cloud"
+# ACCESS_TOKEN = "YOUR_THINGSBOARD_ACCESS_TOKEN"
 
 # MySQL Config
-DB_CONFIG = {
-    'host': 'localhost',
-    'user': 'your_db_user',
-    'password': 'your_db_password',
-    'database': 'your_db_name'
-}
+database = pymysql.connect(
+    host="localhost",
+    user="pi",
+    password="",
+    database="assignment3"
+)
 
-# === ROUTES ===
+# API
 
 @app.route('/')
 def index():
@@ -26,8 +26,8 @@ def index():
 @app.route('/api/fan', methods=['POST'])
 def control_fan():
     action = request.json.get('action')  # "on" or "off"
-    payload = {"fan": action}
-    publish.single("v1/devices/me/telemetry", payload=str(payload), hostname=MQTT_BROKER, auth={'username': ACCESS_TOKEN})
+    # payload = {"fan": action}
+    # publish.single("v1/devices/me/telemetry", payload=str(payload), hostname=MQTT_BROKER, auth={'username': ACCESS_TOKEN})
     return jsonify({"status": "sent", "action": action})
 
 @app.route('/api/search', methods=['GET'])
@@ -37,10 +37,10 @@ def search_data():
     end = request.args.get('end')
 
     try:
-        conn = mysql.connector.connect(**DB_CONFIG)
-        cursor = conn.cursor()
+        cursor = database.cursor()
         query = f"""
-            SELECT value, timestamp FROM {table}
+            SELECT value, timestamp 
+            FROM {table}
             WHERE timestamp BETWEEN %s AND %s
             ORDER BY timestamp DESC
         """
@@ -54,7 +54,7 @@ def search_data():
 
     finally:
         cursor.close()
-        conn.close()
+        database.close()
 
 if __name__ == '__main__':
     app.run(debug=True)
