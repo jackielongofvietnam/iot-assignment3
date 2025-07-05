@@ -2,12 +2,17 @@ from flask import Flask, render_template, request, jsonify
 import pymysql
 import paho.mqtt.publish as publish
 from datetime import datetime
+import serial
+import time
 
 app = Flask(__name__)
 
 # # MQTT Setup
 # MQTT_BROKER = "thingsboard.cloud"
 # ACCESS_TOKEN = "YOUR_THINGSBOARD_ACCESS_TOKEN"
+# Connect to Arduino
+arduino = serial.Serial('/dev/ttyS0', 9600, timeout=1)
+time.sleep(2)
 
 # MySQL Config
 database = pymysql.connect(
@@ -25,9 +30,11 @@ def index():
 
 @app.route('/api/fan', methods=['POST'])
 def control_fan():
-    action = request.json.get('action')  # "on" or "off"
+    action = request.json.get('action') + '\n'
     # payload = {"fan": action}
     # publish.single("v1/devices/me/telemetry", payload=str(payload), hostname=MQTT_BROKER, auth={'username': ACCESS_TOKEN})
+    arduino.write(action.encode())  # Send fan command
+
     return jsonify({"status": "sent", "action": action})
 
 @app.route('/api/search', methods=['GET'])
