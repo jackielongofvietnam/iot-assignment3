@@ -2,7 +2,7 @@ import serial
 import time
 import json
 import paho.mqtt.client as mqtt
-import pymysql.connector
+import pymysql
 from datetime import datetime
 
 # === CONFIGURATION ===
