@@ -6,17 +6,17 @@ import mysql.connector
 from datetime import datetime
 
 # === CONFIGURATION ===
-SERIAL_PORT = 'COM3'  # Replace with your port
+SERIAL_PORT = '/dev/ttyS0'
 BAUD_RATE = 9600
-MQTT_BROKER = "thingsboard.cloud"
-MQTT_PORT = 1883
+THINGSBOARD_ADDR = "192.168.112.131"
+PORT = 1883
 ACCESS_TOKEN = "YOUR_THINGSBOARD_ACCESS_TOKEN"
 
 DB_CONFIG = {
     'host': 'localhost',
-    'user': 'your_db_user',
-    'password': 'your_db_password',
-    'database': 'your_db_name'
+    'user': 'pi',
+    'password': '',
+    'database': 'assignment3'
 }
 
 # === INIT SERIAL, MQTT, DB ===
@@ -24,7 +24,7 @@ ser = serial.Serial(SERIAL_PORT, BAUD_RATE, timeout=2)
 
 client = mqtt.Client()
 client.username_pw_set(ACCESS_TOKEN)
-client.connect(MQTT_BROKER, MQTT_PORT, 60)
+client.connect(THINGSBOARD_ADDR, PORT, 60)
 client.loop_start()
 
 db = mysql.connector.connect(**DB_CONFIG)
@@ -40,15 +40,15 @@ def analyze_and_publish(data):
     try:
         soil_raw, temp, light_raw, rain_raw, water_raw = map(float, data.strip().split(','))
 
-        # Soil Moisture (%)
+        # Soil Moisture
         soil_percent = round((1023 - soil_raw) / 1023 * 100)
         insert_into_db('soil_moisture', soil_percent)
 
-        # Temperature (°C)
+        # Temperature
         temp_c = round(temp, 2)
         insert_into_db('temperature', temp_c)
 
-        # Sunlight Condition
+        # Sunlight Intensity
         sunlight_status = "Sunny" if light_raw < 400 else "Cloudy"
         insert_into_db('sunlight', sunlight_status)
 
