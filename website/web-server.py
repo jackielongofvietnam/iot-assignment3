@@ -14,13 +14,15 @@ app = Flask(__name__)
 arduino = serial.Serial('/dev/ttyS0', 9600, timeout=1)
 time.sleep(2)
 
-# MySQL Config
-database = pymysql.connect(
-    host="localhost",
-    user="pi",
-    password="",
-    database="assignment3"
-)
+# Database Config
+DB_CONFIG = {
+    'host': 'localhost',
+    'user': 'pi',
+    'password': '',
+    'database': 'assignment3'
+}
+    
+
 
 # API
 
@@ -44,6 +46,7 @@ def search_data():
     end = request.args.get('end')
 
     try:
+        database = pymysql.connect(**DB_CONFIG)
         cursor = database.cursor()
         query = f"""
             SELECT value, timestamp 
