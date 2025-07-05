@@ -2,7 +2,7 @@ import serial
 import time
 import json
 import paho.mqtt.client as mqtt
-import mysql.connector
+import pymysql.connector
 from datetime import datetime
 
 # === CONFIGURATION ===
@@ -10,16 +10,9 @@ SERIAL_PORT = '/dev/ttyS0'
 BAUD_RATE = 9600
 THINGSBOARD_ADDR = "192.168.112.131"
 PORT = 1883
-ACCESS_TOKEN = "YOUR_THINGSBOARD_ACCESS_TOKEN"
+ACCESS_TOKEN = "zgrbpj5lm4bprcclwm2f"
 
-DB_CONFIG = {
-    'host': 'localhost',
-    'user': 'pi',
-    'password': '',
-    'database': 'assignment3'
-}
-
-# === INIT SERIAL, MQTT, DB ===
+# === INIT SERIAL, MQTT, database ===
 ser = serial.Serial(SERIAL_PORT, BAUD_RATE, timeout=2)
 
 client = mqtt.Client()
@@ -27,14 +20,20 @@ client.username_pw_set(ACCESS_TOKEN)
 client.connect(THINGSBOARD_ADDR, PORT, 60)
 client.loop_start()
 
-db = mysql.connector.connect(**DB_CONFIG)
-cursor = db.cursor()
+database = pymysql.connect(
+    host="localhost",
+    user="pi",
+    password="",
+    database="assignment1"
+)
+cursor = database.cursor()
+cursor = database.cursor()
 
-def insert_into_db(table, value):
+def insert_into_database(table, value):
     now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     sql = f"INSERT INTO {table} (value, timestamp) VALUES (%s, %s)"
     cursor.execute(sql, (value, now))
-    db.commit()
+    database.commit()
 
 def analyze_and_publish(data):
     try:
@@ -42,15 +41,15 @@ def analyze_and_publish(data):
 
         # Soil Moisture
         soil_percent = round((1023 - soil_raw) / 1023 * 100)
-        insert_into_db('soil_moisture', soil_percent)
+        insert_into_database('soil_moisture', soil_percent)
 
         # Temperature
         temp_c = round(temp, 2)
-        insert_into_db('temperature', temp_c)
+        insert_into_database('temperature', temp_c)
 
         # Sunlight Intensity
         sunlight_status = "Sunny" if light_raw < 400 else "Cloudy"
-        insert_into_db('sunlight', sunlight_status)
+        insert_into_database('sunlight', sunlight_status)
 
         # Rain Intensity
         if rain_raw < 100:
@@ -59,7 +58,7 @@ def analyze_and_publish(data):
             rain_status = "Slight rain"
         else:
             rain_status = "No rain"
-        insert_into_db('rain', rain_status)
+        insert_into_database('rain', rain_status)
 
         # Water Level Condition
         if water_raw < 200:
@@ -68,7 +67,7 @@ def analyze_and_publish(data):
             water_status = "High"
         else:
             water_status = "OK"
-        insert_into_db('water_level', water_status)
+        insert_into_database('water_level', water_status)
 
         # Publish to MQTT
         payload = {
@@ -102,4 +101,4 @@ finally:
     client.loop_stop()
     client.disconnect()
     cursor.close()
-    db.close()
+    database.close()
