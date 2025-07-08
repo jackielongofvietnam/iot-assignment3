@@ -32,39 +32,39 @@ cursor = database.cursor()
 
 def insert_into_database(table, value):
     now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    sql = f"INSERT INTO {table} (value, timestamp) VALUES (%s, %s)"
-    cursor.execute(sql, (value, now))
+    query = f"INSERT INTO {table} (value, timestamp) VALUES (%s, %s)"
+    cursor.execute(query, (value, now))
     database.commit()
 
 def analyze_and_publish(data):
     try:
-        soil_raw, temp, light_raw, rain_raw, water_raw = map(float, data.strip().split(','))
+        soil_value, temp, light_value, rain_value, water_value = map(float, data.strip().split(','))
 
         # Soil Moisture
-        soil_percent = round((1023 - soil_raw) / 1023 * 100)
+        soil_percent = round((1023 - soil_value) / 1023 * 100)
         insert_into_database('soil_moisture', soil_percent)
 
         # Temperature
-        temp_c = round(temp, 2)
-        insert_into_database('temperature', temp_c)
+        temp = round(temp, 2)
+        insert_into_database('temperature', temp)
 
         # Sunlight Intensity
-        sunlight_status = "Sunny" if light_raw < 400 else "Cloudy"
+        sunlight_status = "Sunny" if light_value < 400 else "Cloudy"
         insert_into_database('sunlight', sunlight_status)
 
         # Rain Intensity
-        if rain_raw < 400:
+        if rain_value < 400:
             rain_status = "Heavy rain"
-        elif rain_raw < 800:
+        elif rain_value < 800:
             rain_status = "Slight rain"
         else:
             rain_status = "No rain"
         insert_into_database('rain', rain_status)
 
         # Water Level
-        if water_raw < 200:
+        if water_value > 600:
             water_status = "Flooded"
-        elif water_raw < 500:
+        elif water_value > 500:
             water_status = "High"
         else:
             water_status = "OK"
@@ -73,7 +73,7 @@ def analyze_and_publish(data):
         # Publish
         payload = {
             "soil_moisture": soil_percent,
-            "temperature": temp_c,
+            "temperature": temp,
             "sunlight": sunlight_status,
             "rain": rain_status,
             "water_level": water_status
