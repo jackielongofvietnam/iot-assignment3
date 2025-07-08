@@ -53,9 +53,9 @@ def analyze_and_publish(data):
         insert_into_database('sunlight', sunlight_status)
 
         # Rain Intensity
-        if rain_raw < 100:
+        if rain_raw < 400:
             rain_status = "Heavy rain"
-        elif rain_raw < 300:
+        elif rain_raw < 800:
             rain_status = "Slight rain"
         else:
             rain_status = "No rain"
