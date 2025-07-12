@@ -90,7 +90,7 @@ def export_data():
             io.BytesIO(output.getvalue().encode()),
             mimetype='text/csv',
             as_attachment=True,
-            download_name=table + "_data.csv"        
+            #download_name=f"{table}_data_{start}_to_{end}.csv"        
         )
 
     except Exception as e:
