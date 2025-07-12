@@ -87,6 +87,7 @@ def export_data():
 
         output.seek(0)
         file_name = f"{table}_data_{start}_to_{end}.csv"
+        print(file_name)
         return send_file(
             io.BytesIO(output.getvalue().encode()),
             mimetype='text/csv',
