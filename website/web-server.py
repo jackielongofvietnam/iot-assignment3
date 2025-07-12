@@ -86,13 +86,12 @@ def export_data():
             writer.writerow([row[0], row[1].strftime("%Y-%m-%d %H:%M:%S")])
 
         output.seek(0)
-        file_name = "data"
-        print(file_name)
+        
         return send_file(
             io.BytesIO(output.getvalue().encode()),
             mimetype='text/csv',
             as_attachment=True,
-            download_name=file_name        
+            download_name=f'{table}_data.csv'       
         )
 
     except Exception as e:
