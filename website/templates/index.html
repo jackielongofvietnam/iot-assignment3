@@ -9,7 +9,7 @@
 
   <h1 class="mb-4">🌾 Crop Monitoring Dashboard</h1>
 
-  <!-- FAN CONTROL -->
+  <!-- Fan cooling -->
   <div class="mb-5 border p-3">
     <h4>Fan System</h4>
     <button class="btn btn-success me-2" onclick="controlFan('FAN_ON')">Turn ON</button>
@@ -17,7 +17,7 @@
     <div id="fan-status" class="mt-2 text-muted"></div>
   </div>
 
-  <!-- SEARCH DATA -->
+  <!-- Data search -->
   <div class="border p-3">
     <h4>Search Data</h4>
     <form onsubmit="return fetchData(event)">
@@ -42,6 +42,9 @@
         </div>
         <div class="col-md-3">
           <button type="submit" class="btn btn-primary">Search</button>
+        </div>
+        <div class="mt-3">
+          <button class="btn btn-outline-secondary" onclick="downloadCSV()">Download CSV</button>
         </div>
       </div>
     </form>
@@ -78,7 +81,14 @@
           document.getElementById('result-table').innerHTML = rows;
         });
     }
-  </script>
 
+    function downloadCSV() {
+      const param = document.getElementById('parameter').value;
+      const start = document.getElementById('start').value;
+      const end = document.getElementById('end').value;
+      const url = `/api/export?parameter=${param}&start=${start}&end=${end}`;
+      window.open(url, '_blank');
+    }
+  </script>
 </body>
 </html>
