@@ -86,7 +86,7 @@ def export_data():
             writer.writerow([row[0], row[1].strftime("%Y-%m-%d %H:%M:%S")])
 
         output.seek(0)
-        file_name = "data.csv"
+        file_name = "data"
         print(file_name)
         return send_file(
             io.BytesIO(output.getvalue().encode()),
